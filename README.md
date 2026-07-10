@@ -1,157 +1,453 @@
 # AI-First HCP CRM
 
-A fully functional, AI-powered Customer Relationship Management (CRM) prototype designed for pharmaceutical field representatives to seamlessly log and manage interactions with Healthcare Professionals (HCPs). 
+An AI-powered Customer Relationship Management (CRM) prototype designed for pharmaceutical field representatives to efficiently log, manage, and review interactions with Healthcare Professionals (HCPs).
 
-This project demonstrates a modern architecture combining a polished React frontend with an intelligent FastAPI backend orchestrated by LangGraph.
+The application combines a modern React frontend with a FastAPI backend and a LangGraph-powered AI agent that enables users to either manually log interactions or simply describe them using natural language.
 
-## Project Overview
+---
 
-Field representatives often spend too much time on manual data entry. This AI-First CRM solves that by offering two modes:
-1. **Structured Form Mode:** A clean, manual entry form for standard logging.
-2. **AI Chat Mode:** An intelligent conversational interface where reps can simply describe an interaction (e.g., *"Met Dr. Sharma today to discuss new trial... "*). The LangGraph agent extracts structured fields and automatically executes database operations using tools.
+# Project Overview
 
-## Architecture Diagram
+Pharmaceutical sales representatives spend a significant amount of time manually documenting meetings with doctors after every visit. This project demonstrates how AI can simplify that workflow while maintaining structured CRM records.
+
+The application supports two interaction modes:
+
+### 1. Structured Form Mode
+Users manually fill in interaction details such as:
+
+- Interaction Type
+- Summary
+- Topics Discussed
+- Requested Action
+- Follow-up Date
+
+---
+
+### 2. AI Chat Mode
+
+Users can describe an interaction naturally, for example:
+
+> "I met Dr. Patel today. We discussed the latest hypertension treatment. He requested clinical trial reports. Schedule a follow-up next Friday."
+
+The LangGraph agent automatically:
+
+- Understands the user's intent
+- Extracts structured information
+- Selects the appropriate backend tool
+- Stores the interaction in the SQL database
+- Returns a confirmation response
+
+---
+
+# System Architecture
 
 ```mermaid
 graph TD
+
     subgraph Frontend [React + Redux SPA]
+
         UI[User Interface]
-        State[Redux Store]
-        UI <--> State
+
+        Store[Redux Store]
+
+        UI <--> Store
+
     end
 
-    subgraph Backend [FastAPI Server]
+    subgraph Backend [FastAPI Backend]
+
         API[REST API]
+
         Agent[LangGraph Agent]
-        
-        subgraph Tools [LangChain Tools]
-            T1(Log Interaction)
-            T2(Edit Interaction)
-            T3(Search HCP)
-            T4(Interaction History)
-            T5(Schedule Follow-up)
+
+        subgraph Tools
+
+            T1[Log Interaction]
+
+            T2[Edit Interaction]
+
+            T3[Search HCP]
+
+            T4[Interaction History]
+
+            T5[Schedule Follow-up]
+
         end
-        
-        API <--> Agent
-        Agent <--> Tools
+
+        API --> Agent
+
+        Agent --> T1
+        Agent --> T2
+        Agent --> T3
+        Agent --> T4
+        Agent --> T5
+
     end
 
     subgraph External
-        LLM[Groq gemma2-9b-it]
-        DB[(SQLite / SQL DB)]
+
+        LLM[Groq Llama-3.3-70B-Versatile]
+
+        DB[(SQLite Database)]
+
     end
 
-    Frontend <-->|JSON / REST| Backend
-    Agent <-->|API Calls| LLM
-    Tools <-->|SQLAlchemy| DB
+    Frontend <-->|REST API| Backend
+
+    Agent <-->|LLM Calls| LLM
+
+    T1 --> DB
+    T2 --> DB
+    T3 --> DB
+    T4 --> DB
+    T5 --> DB
 ```
 
-## Tech Stack
+---
 
-* **Frontend:** React (Vite), Redux Toolkit, Vanilla CSS (Premium dark mode UI), Lucide Icons
-* **Backend:** FastAPI, SQLAlchemy, Pydantic
-* **AI Orchestration:** LangGraph, LangChain
-* **LLM Provider:** Groq (`gemma2-9b-it`)
-* **Database:** SQLite (SQLAlchemy ORM, fully compatible with PostgreSQL/MySQL)
-* **Typography:** Google Inter
+# Tech Stack
 
-## Folder Structure
+## Frontend
+
+- React (Vite)
+- Redux Toolkit
+- TypeScript
+- Vanilla CSS
+- Google Inter Font
+- Lucide Icons
+
+---
+
+## Backend
+
+- FastAPI
+- SQLAlchemy ORM
+- Pydantic
+
+---
+
+## AI
+
+- LangGraph
+- LangChain
+- Groq
+- Llama-3.3-70B-Versatile
+
+---
+
+## Database
+
+- SQLite
+- SQLAlchemy ORM
+
+The database layer can easily be migrated to PostgreSQL or MySQL with minimal changes.
+
+---
+
+# Key Features
+
+- AI-powered conversational interaction logging
+- Traditional structured form workflow
+- LangGraph-based intelligent agent orchestration
+- Five specialized backend tools
+- Automatic extraction of structured CRM fields
+- HCP search functionality
+- Interaction history management
+- Follow-up scheduling
+- Edit existing interactions
+- SQL database persistence
+- Responsive enterprise-style interface
+
+---
+
+# Folder Structure
 
 ```
-├── backend/
-│   ├── main.py          # FastAPI application & error handling
-│   ├── agent.py         # LangGraph state machine & system prompts
-│   ├── tools.py         # 5 LangChain tools for database operations
-│   ├── database.py      # SQLAlchemy setup
-│   ├── models.py        # Database schema
-│   ├── schemas.py       # Pydantic validation models
-│   ├── seed.py          # Script to seed initial HCP data
-│   └── requirements.txt
-└── frontend/
-    ├── src/
-    │   ├── components/  # React UI components (Chat, Form, Search, History)
-    │   ├── store/       # Redux slices (ui, hcp, interaction)
-    │   ├── App.tsx      # Main layout
-    │   ├── main.tsx     # Entry point
-    │   └── index.css    # Global styles & animations
-    ├── package.json
-    └── vite.config.ts
+ai-first-hcp-crm
+│
+├── backend
+│   ├── main.py
+│   ├── agent.py
+│   ├── tools.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── database.py
+│   ├── seed.py
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   ├── store
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── index.css
+│   │
+│   ├── package.json
+│   └── vite.config.ts
+│
+└── README.md
 ```
 
-## How to Run
+---
 
-### 1. Backend Setup
+# Installation
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: .\venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Configure your API Key:
-   Create a `.env` file in the `backend/` directory:
-   ```env
-   GROQ_API_KEY=your_groq_api_key_here
-   ```
-5. Seed the database (creates tables and initial HCPs):
-   ```bash
-   python seed.py
-   ```
-6. Run the server:
-   ```bash
-   uvicorn main:app --reload --port 8000
-   ```
+## Backend
 
-### 2. Frontend Setup
+Navigate to the backend folder.
 
-1. Open a new terminal and navigate to the frontend:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open `http://localhost:5173` in your browser.
+```bash
+cd backend
+```
 
-## API Endpoints
+Create a virtual environment.
 
-* `GET /api/hcps` - List all HCPs
-* `POST /api/hcps` - Create a new HCP
-* `GET /api/hcps/{id}/interactions` - Get history for a specific HCP
-* `POST /api/interactions` - Manually log a new interaction
-* `PUT /api/interactions/{id}` - Update an existing interaction
-* `POST /api/agent/chat` - Interact with the LangGraph AI Agent
+```bash
+python -m venv venv
+```
 
-## LangGraph Workflow & Tools Explained
+Activate it.
 
-The AI Agent acts as an intelligent router. When a user submits a natural language message, the agent (powered by `gemma2-9b-it`) determines intent and utilizes one or more of the following tools:
+Windows
 
-1. **`log_interaction`**: Extracts fields (type, summary, topics) and persists a new interaction to the database.
-2. **`edit_interaction`**: Identifies an interaction ID and applies modifications described by the user.
-3. **`search_hcp`**: Queries the DB by name/specialty. If a rep mentions "Dr. Sharma" without selecting an ID, the agent automatically uses this tool to resolve the ID first.
-4. **`get_interaction_history`**: Fetches past interactions to answer contextual questions.
-5. **`schedule_followup`**: Generates a linked follow-up task and due date.
+```bash
+.\venv\Scripts\activate
+```
 
-## Future Improvements
+Linux / macOS
 
-* **Authentication:** Implement JWT-based auth to track interactions per-rep.
-* **Production Database:** Migrate the SQLAlchemy connection string from SQLite to PostgreSQL.
-* **Analytics Dashboard:** Add a view to track interaction frequency and common discussion topics.
+```bash
+source venv/bin/activate
+```
 
-## Troubleshooting
+Install dependencies.
 
-* **"Database error / no such table"**: Ensure you have run `python seed.py` before starting the backend server.
-* **"AI Service unavailable"**: Check your `backend/.env` file to ensure the `GROQ_API_KEY` is valid and active.
-* **"Failed to fetch" on Frontend**: Ensure the FastAPI server is running on port 8000.
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file.
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Seed the database.
+
+```bash
+python seed.py
+```
+
+Run the backend.
+
+```bash
+uvicorn main:app --reload
+```
+
+---
+
+## Frontend
+
+Navigate to the frontend.
+
+```bash
+cd frontend
+```
+
+Install dependencies.
+
+```bash
+npm install
+```
+
+Run the application.
+
+```bash
+npm run dev
+```
+
+Open
+
+```
+http://localhost:5173
+```
+
+---
+
+# API Endpoints
+
+## HCP
+
+```
+GET /api/hcps
+```
+
+Retrieve all Healthcare Professionals.
+
+---
+
+```
+POST /api/hcps
+```
+
+Create a new Healthcare Professional.
+
+---
+
+## Interaction
+
+```
+GET /api/hcps/{id}/interactions
+```
+
+Retrieve interaction history.
+
+---
+
+```
+POST /api/interactions
+```
+
+Create a new interaction.
+
+---
+
+```
+PUT /api/interactions/{id}
+```
+
+Update an existing interaction.
+
+---
+
+## AI Agent
+
+```
+POST /api/agent/chat
+```
+
+Send a natural language request to the LangGraph AI Agent.
+
+---
+
+# LangGraph Agent Workflow
+
+The LangGraph agent acts as the intelligent decision-making layer of the application.
+
+When a user submits a message through the AI Chat interface:
+
+1. FastAPI receives the request.
+
+2. The request is forwarded to the LangGraph agent.
+
+3. The language model analyzes the user's intent.
+
+4. The agent determines which backend tool should execute.
+
+5. The selected tool performs the database operation.
+
+6. FastAPI returns the result to the frontend.
+
+This architecture separates AI reasoning from business logic, making the application modular, maintainable, and scalable.
+
+---
+
+# LangGraph Tools
+
+## 1. Log Interaction
+
+Creates a new interaction from either the structured form or AI chat.
+
+The LLM extracts:
+
+- Interaction Type
+- Summary
+- Topics Discussed
+- Requested Action
+- Follow-up Date
+
+The tool then stores the interaction in the SQL database.
+
+---
+
+## 2. Edit Interaction
+
+Allows users to modify existing interaction records while preserving other stored information.
+
+---
+
+## 3. Search HCP
+
+Searches Healthcare Professionals by name or specialty.
+
+Used whenever the system needs to identify an HCP before logging interactions.
+
+---
+
+## 4. Get Interaction History
+
+Retrieves previous interactions associated with an HCP.
+
+This provides additional context before new interactions are recorded.
+
+---
+
+## 5. Schedule Follow-up
+
+Creates follow-up tasks linked to interactions and stores reminder dates inside the database.
+
+---
+
+# Future Improvements
+
+- JWT Authentication
+- Role-based Access Control
+- PostgreSQL Deployment
+- Docker Support
+- Analytics Dashboard
+- Email Notifications
+- Calendar Integration
+- AI-generated Meeting Summaries
+- Multi-user Support
+
+---
+
+# Troubleshooting
+
+### AI Service Unavailable
+
+Verify your Groq API key inside:
+
+```
+backend/.env
+```
+
+---
+
+### Database Errors
+
+Run:
+
+```bash
+python seed.py
+```
+
+to recreate tables and sample HCP records.
+
+---
+
+### Frontend Cannot Connect
+
+Ensure the FastAPI backend is running before starting the frontend.
+
+---
+
+# Author
+
+**Jay Patel**
+
+AI-First HCP CRM Prototype
+
+Built using React, Redux, FastAPI, LangGraph, Groq LLM, SQLAlchemy, and SQLite.
